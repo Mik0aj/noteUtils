@@ -1,0 +1,20 @@
+#!/bin/bash
+
+path=$(git rev-parse --show-toplevel)
+tags=$(find $path -name '*.md' | xargs grep -m 1 -i tags: | sed 's/.*\[\([^]]*\)\].*/\1/g' | tr --squeeze-repeats ' ' '\n' | sort -u )
+rm $path/.metadata/tags
+
+for tag in $tags 
+do
+	echo "* $tag" >> $path/.metadata/tags
+done
+
+#titles=$(find $path -name *.md | xargs grep -m 1 -i title:|sed 's/^.*: //'| sed -e '$a\')
+#echo $titles
+#rm titles
+#for title in $titles 
+#do
+#	echo "* $title" >> titles
+#done
+
+cat $path/.metadata/intro $path/.metadata/tags > $path/README.md

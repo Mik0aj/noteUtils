@@ -1,0 +1,28 @@
+#!/bin/bash
+
+name=$(date +%F-%T)
+
+while getopts ":n:t:h" opt; do
+  case ${opt} in
+    n )
+      name=$OPTARG
+      ;;
+		t )
+			tags=$OPTARG
+			;;
+		h )
+			echo "-n stands for name of the note -f stands for tags provide them as one string inside quotes"
+			;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      ;;
+  esac
+done
+
+shift $((OPTIND -1))
+template="---\ntitle: $name\ntags: [ ${tags[@]} ]\ncreated: $(date +%F-%T)\n---\n"
+
+echo -e $template > $name.md
