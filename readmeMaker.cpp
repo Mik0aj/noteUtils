@@ -5,20 +5,27 @@
 #include <filesystem>
 #include <set>
 
+static const char *const METADATA_TAG = "tags";
+static const char *const METADATA_ABSOLUTE_PATH = "absolute_path";
+static const char *const METADATA_TITLE = "title";
+static const char *const PATH_TO_TAGSMD = ".metadata/tags.md";
+static const char *const PATH_TO_INTRO = ".metadata/intro";
+static const char *const PATH_TO_OUTRO = ".metadata/outro";
+static const char *const README = "README.md";
 
 typedef std::multimap<std::string, std::string> FileInfo;
 
 void splitTags(FileInfo &data) {
     const std::string delimeter{" "};
-    const auto val{data.find("tags")->second};
+    const auto val{data.find(METADATA_TAG)->second};
     const auto tagsStart{val.find('[') + 1};
     const auto tagsEnd{val.find(']') - 2};
     auto tagsAsOneWord{val.substr(tagsStart, tagsEnd)};
     size_t pos{0};
-    data.erase("tags");
+    data.erase(METADATA_TAG);
     while ((pos = tagsAsOneWord.find(delimeter)) != std::string::npos) {
         const auto tag{tagsAsOneWord.substr(0, pos)};
-        if (!tag.empty()) { data.insert({"tags", tag}); }
+        if (!tag.empty()) { data.insert({METADATA_TAG, tag}); }
         tagsAsOneWord.erase(0, pos + delimeter.length());
     }
 }
@@ -37,9 +44,9 @@ FileInfo metadataGetter(const std::string &pathToFile) {
                 const auto value = line.substr(alloc + 1, line.size() - alloc);
                 data.insert({key, value});
             } else if (metadata == 2) {
-                if (data.contains("tags")) {
+                if (data.contains(METADATA_TAG)) {
                     splitTags(data);
-                    data.insert({"absolute_path", pathToFile});
+                    data.insert({METADATA_ABSOLUTE_PATH, pathToFile});
                 }
                 file.close();
                 return data;
@@ -54,7 +61,7 @@ std::set<std::string> getUniqueTags(const std::map<std::string, FileInfo> &data)
     std::set<std::string> uniqueTags{};
     for (auto &[key, data]: data) {
         for (auto &[key, data]: data) {
-            if (key == "tags") {
+            if (key == METADATA_TAG) {
                 uniqueTags.insert(data);
             }
         }
@@ -65,7 +72,7 @@ std::set<std::string> getUniqueTags(const std::map<std::string, FileInfo> &data)
 std::multimap<std::string, FileInfo> mapFilesToTags(const std::map<std::string, FileInfo> &filesInfo) {
     std::multimap<std::string, FileInfo> filesBelongingToTag{};
     for (const auto &[name, fileInfo]: filesInfo) {
-        auto range{fileInfo.equal_range("tags")};
+        auto range{fileInfo.equal_range(METADATA_TAG)};
         for (auto i = range.first; i != range.second; ++i) {
             filesBelongingToTag.insert({i->second, fileInfo});
         }
@@ -75,15 +82,15 @@ std::multimap<std::string, FileInfo> mapFilesToTags(const std::map<std::string, 
 
 int main(int argc, char *argv[]) {
     std::string pathToFolder{argv[1]};
-    std::ofstream readme{pathToFolder + "README.md"};
-    std::ofstream tags{pathToFolder + ".metadata/tags.md"};
-    std::ifstream intro(pathToFolder + ".metadata/intro");
-    std::ifstream outro(pathToFolder + ".metadata/outro");
-
+    std::ofstream readme{pathToFolder + README};
+    std::ofstream tags{pathToFolder + PATH_TO_TAGSMD};
+    std::ifstream intro(pathToFolder + PATH_TO_INTRO);
+    std::ifstream outro(pathToFolder + PATH_TO_OUTRO);
     std::map<std::string, FileInfo> filesInfo{};
+
     for (const auto &entry: std::filesystem::recursive_directory_iterator(pathToFolder)) {
         const auto pathEnding{entry.path().string()};
-        if (pathEnding.rfind(".md") != std::string::npos) {
+        if (pathEnding.rfind(".md") != std::string::npos) { // maybe add more extensions support md mdk
             const auto metadata = metadataGetter(pathEnding);
             if (!metadata.empty()) {
                 filesInfo.insert({pathEnding, metadata});
@@ -101,8 +108,8 @@ int main(int argc, char *argv[]) {
         auto ret{tagAndFiles.equal_range(tag)};
         tags << "#### " << tag << "\n";
         for (auto it = ret.first; it != ret.second; ++it) {
-            auto title{it->second.find("title")};
-            auto relativePath{it->second.find("absolute_path")->second};
+            auto title{it->second.find(METADATA_TITLE)};
+            auto relativePath{it->second.find(METADATA_ABSOLUTE_PATH)->second};
             tags << "* " << "[" << title->second << "](../"
                  << relativePath.substr(pathToFolder.size(), relativePath.size() - pathToFolder.size()) << "#top)"
                  << std::endl;
@@ -111,12 +118,6 @@ int main(int argc, char *argv[]) {
     for (std::string line; getline(outro, line);) {
         readme << line << '\n';
     }
-
-//    for (auto [tag, fileInfo]: mapFilesToTags(filesInfo)) {
-//        if(fileInfo.find("title")!=fileInfo.end()){
-//            std::cout << tag << ' ' << fileInfo.find("title")->second << std::endl;
-//        }
-//    }
     intro.close();
     outro.close();
     return 0;
