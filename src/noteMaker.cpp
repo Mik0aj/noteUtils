@@ -5,6 +5,8 @@
 #include <fstream>
 #include <ctime>
 #include <getopt.h>
+#include <sstream>
+#include <vector>
 
 static const char *const TEST_PATH = "../testing/noteMakerTest";
 static const char *const METADATA_TAG = "tags";
@@ -14,15 +16,27 @@ static const char *const METADATA_DATE = "created";
 
 static struct option long_options[] = {
         /*   NAME       ARGUMENT           FLAG  SHORTNAME */
-        {"name",    required_argument, NULL, 'n'},
-        {"tags",    required_argument, NULL, 't'},
-        {NULL, 0,                      NULL, 0}
+        {"name", required_argument, NULL, 'n'},
+        {"tags", required_argument, NULL, 't'},
+        {NULL, 0,                   NULL, 0}
 };
 
-std::string generateFileName(std::string name){
-    //split on spaces capitalize every word except for the first one
+std::vector<std::string> splitStringOnDelimeter(std::string string, std::string delimeter) {
+    std::vector<std::string> words{string.size()};
+    size_t pos{0};
+    while ((pos = string.find(delimeter)) != std::string::npos) {
+        const auto word{string.substr(0, pos)};
+        words.push_back(word);
+        string.erase(0, pos + delimeter.length());
+    }
+    return words;
 }
-std::string formatTags(std::string tags){
+
+std::string generateFileName(std::string name) {
+
+}
+
+std::string formatTags(std::string tags) {
     //return string looking like this [ space after TAG_ONE TAG_TWO space before ]
 }
 
@@ -39,7 +53,7 @@ int main(int argc, char *argv[]) {
             case 'n':
                 printf("option n with value '%s'\n", optarg);
                 name = optarg;
-                fileName=optarg;
+                fileName = generateFileName(optarg);
                 break;
             case 't':
                 printf("option t with value '%s'\n", optarg);
@@ -52,11 +66,11 @@ int main(int argc, char *argv[]) {
         }
     }
     if (optind < argc) {
-        printf ("non-option ARGV-elements: ");
+        printf("non-option ARGV-elements: ");
         while (optind < argc) {
-            printf ("%s ", argv[optind++]);
+            printf("%s ", argv[optind++]);
         }
-        printf ("\n");
+        printf("\n");
     }
     std::ofstream note{TEST_PATH};
     note << "---\n"
