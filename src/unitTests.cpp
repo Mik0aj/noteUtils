@@ -1,10 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
+#include <utility>
 #include "catch2/catch_all.hpp"
-
-std::string generateFileName(std::string name) {
-    return "20";
-}
 
 std::vector<std::string> wordSplitter(std::string string, const std::string &delimeter) {
     std::vector<std::string> words{};
@@ -50,10 +47,15 @@ std::string strToLower(std::string s) {
 }
 
 std::string strToLowerFirstUpper(std::string s) {
-    std::transform(s.begin()++, s.end(), s.begin()++,
-                   [](unsigned char c) { return std::tolower(c); }
+    auto first{true};
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [first](unsigned char c) mutable {
+                       auto val{(first) ? std::toupper(c) : std::tolower(c)};
+
+                       first = false;
+                       return val;
+                   }
     );
-    *s.begin() = toupper(*s.begin());
     return s;
 }
 
@@ -67,6 +69,15 @@ std::string strToUpperFirstLower(std::string s) {
                    }
     );
     return s;
+}
+
+std::string generateFileName(std::string title) {
+    auto words{wordSplitter(std::move(title), " ")};
+    std::string name{};
+    words.at(0) = strToLower(words.at(0));
+    for (auto mIter = std::next(words.begin()); mIter != words.end(); ++mIter)
+        *mIter = strToLowerFirstUpper(*mIter);
+    return std::accumulate(std::next(words.begin()), words.end(), words[0]);
 }
 
 TEST_CASE("strtoupper and lower benchmark") {
@@ -86,7 +97,6 @@ TEST_CASE("strtoupper and lower benchmark") {
                                                   wordSplitter(" " + title + " ", DELIMETER, func)};
                                       };
 }
-
 
 TEST_CASE("Testing Word Splitter") {
     std::string title{"Some multi Worded tiTle"};
@@ -169,6 +179,13 @@ TEST_CASE("Word Splitter with passed function") {
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
+    }
+}
+
+TEST_CASE("File Name generator") {
+    static const std::string title{" Some multi Worded tiTle  "};
+    SECTION("To strToUpper") {
+        REQUIRE(generateFileName(title) == "someMultiWordedTitle");
     }
 }
 
