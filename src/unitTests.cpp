@@ -44,7 +44,7 @@ std::string strToUpper(std::string s) {
 
 std::string strToLower(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(),
-                   [](unsigned char c){ return std::tolower(c); }
+                   [](unsigned char c) { return std::tolower(c); }
     );
     return s;
 }
@@ -56,13 +56,37 @@ std::string strToLowerFirstUpper(std::string s) {
     *s.begin() = toupper(*s.begin());
     return s;
 }
+
 std::string strToUpperFirstLower(std::string s) {
-    std::transform(s.begin()++, s.end(), s.begin()++,
-                   [](unsigned char c) { return std::toupper(c); }
+    auto first{true};
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [first](unsigned char c)mutable {
+                       auto val{(first) ? std::tolower(c) : std::toupper(c)};
+                       first = false;
+                       return val;
+                   }
     );
-    *s.begin() = tolower(*s.begin());
     return s;
 }
+
+TEST_CASE("strtoupper and lower benchmark") {
+    std::string title{
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ut mi sed tortor euismod suscipit eget vel lectus. Nunc in bibendum justo, a tempus odio. Aenean sit amet congue nibh, at accumsan leo. In a feugiat turpis, vehicula luctus arcu. Phasellus consequat bibendum magna, a congue mi auctor eu. Suspendisse faucibus nec orci sit amet ultrices. Nunc malesuada et est at pulvinar. Vestibulum eget ornare massa, nec pulvinar metus. Vestibulum ornare neque nec justo semper, commodo dapibus quam facilisis. Curabitur eu libero in erat ultricies accumsan ac in nibh. Pellentesque a pulvinar tellus. Fusce feugiat orci lorem. Proin vitae nunc.\n"
+    };
+    auto DELIMETER{" "};
+
+    BENCHMARK("strToLowerFirstUpper") {
+                                          std::function<std::string(std::string)> func{strToLowerFirstUpper};
+                                          std::vector<std::string> recieved{
+                                                  wordSplitter(" " + title + " ", DELIMETER, func)};
+                                      };
+    BENCHMARK("strToUpperFirstLower") {
+                                          std::function<std::string(std::string)> func{strToUpperFirstLower};
+                                          std::vector<std::string> recieved{
+                                                  wordSplitter(" " + title + " ", DELIMETER, func)};
+                                      };
+}
+
 
 TEST_CASE("Testing Word Splitter") {
     std::string title{"Some multi Worded tiTle"};
@@ -134,8 +158,7 @@ TEST_CASE("Word Splitter with passed function") {
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
-    }
-    SECTION("To strToUpperFirstLower") {
+    }SECTION("To strToUpperFirstLower") {
         std::function<std::string(std::string)> func{strToUpperFirstLower};
         std::vector<std::string> expected{{"sOME"},
                                           {"mULTI"},
