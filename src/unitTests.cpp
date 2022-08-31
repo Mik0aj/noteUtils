@@ -6,7 +6,7 @@ std::string generateFileName(std::string name) {
     return "20";
 }
 
-std::vector<std::string> wordSplitter(std::string string, std::string delimeter) {
+std::vector<std::string> wordSplitter(std::string string, const std::string &delimeter) {
     std::vector<std::string> words{};
     size_t pos{0};
     auto start = string.find_first_not_of(delimeter);
@@ -21,7 +21,7 @@ std::vector<std::string> wordSplitter(std::string string, std::string delimeter)
 }
 
 template<typename Func>
-std::vector<std::string> wordSplitter(std::string string, std::string delimeter, Func f) {
+std::vector<std::string> wordSplitter(std::string string, const std::string &delimeter, Func f) {
     std::vector<std::string> words{};
     size_t pos{0};
     auto start = string.find_first_not_of(delimeter);
@@ -44,12 +44,27 @@ std::string strToUpper(std::string s) {
 
 std::string strToLower(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(),
-                   [](unsigned char c) { return std::tolower(c); }
+                   [](unsigned char c){ return std::tolower(c); }
     );
     return s;
 }
 
-TEST_CASE("Testing Function") {
+std::string strToLowerFirstUpper(std::string s) {
+    std::transform(s.begin()++, s.end(), s.begin()++,
+                   [](unsigned char c) { return std::tolower(c); }
+    );
+    *s.begin() = toupper(*s.begin());
+    return s;
+}
+std::string strToUpperFirstLower(std::string s) {
+    std::transform(s.begin()++, s.end(), s.begin()++,
+                   [](unsigned char c) { return std::toupper(c); }
+    );
+    *s.begin() = tolower(*s.begin());
+    return s;
+}
+
+TEST_CASE("Testing Word Splitter") {
     std::string title{"Some multi Worded tiTle"};
     auto DELIMETER{" "};
     std::vector<std::string> expected{{"Some"},
@@ -62,22 +77,19 @@ TEST_CASE("Testing Function") {
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
-    }
-    SECTION("Word split, all words space in front") {
+    }SECTION("Word split, all words space in front") {
         std::vector<std::string> recieved{wordSplitter(" " + title, DELIMETER)};
         REQUIRE(expected.at(0) == recieved.at(0));
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
-    }
-    SECTION("Word split, all words space behind") {
+    }SECTION("Word split, all words space behind") {
         std::vector<std::string> recieved{wordSplitter(title + " ", DELIMETER)};
         REQUIRE(expected.at(0) == recieved.at(0));
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
-    }
-    SECTION("Word split, all words space behind and front") {
+    }SECTION("Word split, all words space behind and front") {
         std::vector<std::string> recieved{wordSplitter(" " + title + " ", DELIMETER)};
         REQUIRE(expected.at(0) == recieved.at(0));
         REQUIRE(expected.at(1) == recieved.at(1));
@@ -89,7 +101,7 @@ TEST_CASE("Testing Function") {
 TEST_CASE("Word Splitter with passed function") {
     static const std::string title{" Some multi Worded tiTle  "};
     auto DELIMETER{" "};
-    SECTION("To upper") {
+    SECTION("To strToUpper") {
         std::function<std::string(std::string)> func{strToUpper};
         std::vector<std::string> expected{{"SOME"},
                                           {"MULTI"},
@@ -100,8 +112,7 @@ TEST_CASE("Word Splitter with passed function") {
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
-    }
-    SECTION("To lower") {
+    }SECTION("To strToLower") {
         std::function<std::string(std::string)> func{strToLower};
         std::vector<std::string> expected{{"some"},
                                           {"multi"},
@@ -112,5 +123,29 @@ TEST_CASE("Word Splitter with passed function") {
         REQUIRE(expected.at(1) == recieved.at(1));
         REQUIRE(expected.at(2) == recieved.at(2));
         REQUIRE(expected.at(3) == recieved.at(3));
+    }SECTION("To strToLowerFirstUpper") {
+        std::function<std::string(std::string)> func{strToLowerFirstUpper};
+        std::vector<std::string> expected{{"Some"},
+                                          {"Multi"},
+                                          {"Worded"},
+                                          {"Title"}};
+        std::vector<std::string> recieved{wordSplitter(" " + title + " ", DELIMETER, func)};
+        REQUIRE(expected.at(0) == recieved.at(0));
+        REQUIRE(expected.at(1) == recieved.at(1));
+        REQUIRE(expected.at(2) == recieved.at(2));
+        REQUIRE(expected.at(3) == recieved.at(3));
+    }
+    SECTION("To strToUpperFirstLower") {
+        std::function<std::string(std::string)> func{strToUpperFirstLower};
+        std::vector<std::string> expected{{"sOME"},
+                                          {"mULTI"},
+                                          {"wORDED"},
+                                          {"tITLE"}};
+        std::vector<std::string> recieved{wordSplitter(" " + title + " ", DELIMETER, func)};
+        REQUIRE(expected.at(0) == recieved.at(0));
+        REQUIRE(expected.at(1) == recieved.at(1));
+        REQUIRE(expected.at(2) == recieved.at(2));
+        REQUIRE(expected.at(3) == recieved.at(3));
     }
 }
+
