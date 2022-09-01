@@ -35,9 +35,10 @@ Some outro text.
 
 Given title and tags the program generates file with apropriate file name, title, tags, and creation date.
 
-#### Styling
+#### styling convension
 
 The notes are standarized:
-* filename camelCased `exampleNoteTitle`
-* title lower cased except firs letter `title: Example note title`
-* tags upper case for every tag, tags should be one worded `tags: [ Tag Tag ]`
+* `exampleNoteTitle` filename camelCased 
+* `title: Example note title` title lower cased except firs letter 
+* `tags: [ Tag Tag ]` upper case for every tag, tags should be one worded 
+* `created: Tue Aug 30 14:11:03 2022` default format
