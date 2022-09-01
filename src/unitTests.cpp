@@ -1,7 +1,6 @@
 #include <utility>
 #include "catch2/catch_all.hpp"
-#include "src/StringManipulators.cpp"
-
+#include "src/StringManipulators.h"
 
 
 TEST_CASE("strtoupper and lower benchmark") {
@@ -106,10 +105,10 @@ TEST_CASE("Word Splitter with passed function") {
     }
 }
 
-TEST_CASE("File Name generator") {
-    static const std::string title{" Some multi Worded tiTle  "};
-    SECTION("To strToUpper") {
-        REQUIRE(generateFileName(title) == "someMultiWordedTitle");
-    }
-}
+//TEST_CASE("File Name generator") {
+//    static const std::string title{" Some multi Worded tiTle  "};
+//    SECTION("To strToUpper") {
+//        REQUIRE(generateFileName(title) == "someMultiWordedTitle");
+//    }
+//}
 

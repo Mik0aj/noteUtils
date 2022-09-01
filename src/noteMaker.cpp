@@ -2,9 +2,8 @@
 #include <fstream>
 #include <ctime>
 #include <getopt.h>
-#include <vector>
 #include <numeric>
-#include "StringManipulators.h"
+#include "src/StringManipulators.h"
 
 static const char *const TEST_PATH = "../testing/";
 static const char *const METADATA_TAG = "tags";
@@ -24,14 +23,15 @@ std::string generateFileName(std::string title) {
 std::string formatTitle(std::string title) {
     auto words{wordSplitter(std::move(title), " ")};
     std::string name{};
-    words.at(0) = strToLowerFirstUpper(words.at(0));
+    words.at(0) = strToLowerFirstUpper(words.at(0) + " ");
     for (auto mIter = std::next(words.begin()); mIter != words.end(); ++mIter)
-        *mIter = strToLower(*mIter);
+        *mIter = strToLower(*mIter + " ");
     return std::accumulate(std::next(words.begin()), words.end(), words[0]);
 }
 
 std::string formatTags(std::string tags) {
-    auto words{wordSplitter(std::move(tags), " ", strToLowerFirstUpper)};
+    std::vector<std::string> words{wordSplitter(std::move(tags), " ", strToLowerFirstUpper)};
+    for (auto &word: words) word + " ";
     return std::accumulate(std::next(words.begin()), words.end(), words[0]);
 }
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
         }
         printf("\n");
     }
-    std::ofstream note{TEST_PATH + generateFileName(title)};
+    std::ofstream note{TEST_PATH + generateFileName(title)+".md"};
     note << "---\n"
          << METADATA_TITLE << ": " << formatTitle(title) << "\n"
          << METADATA_TAG << ": [ " << formatTags(tags) << " ]\n"
