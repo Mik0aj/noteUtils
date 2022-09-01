@@ -2,14 +2,7 @@
 #include "catch2/catch_all.hpp"
 #include "src/StringManipulators.cpp"
 
-std::string generateFileName(std::string title) {
-    auto words{wordSplitter(std::move(title), " ")};
-    std::string name{};
-    words.at(0) = strToLower(words.at(0));
-    for (auto mIter = std::next(words.begin()); mIter != words.end(); ++mIter)
-        *mIter = strToLowerFirstUpper(*mIter);
-    return std::accumulate(std::next(words.begin()), words.end(), words[0]);
-}
+
 
 TEST_CASE("strtoupper and lower benchmark") {
     std::string title{
