@@ -4,6 +4,7 @@
 #include <vector>
 #include <filesystem>
 #include <set>
+#include "StringManipulators.h"
 
 static const char *const METADATA_TAG = "tags";
 static const char *const METADATA_ABSOLUTE_PATH = "absolute_path";
@@ -23,10 +24,8 @@ void splitTags(FileInfo &data) {
     auto tagsAsOneWord{val.substr(tagsStart, tagsEnd)};
     size_t pos{0};
     data.erase(METADATA_TAG);
-    while ((pos = tagsAsOneWord.find(delimeter)) != std::string::npos) {
-        const auto tag{tagsAsOneWord.substr(0, pos)};
-        if (!tag.empty()) { data.insert({METADATA_TAG, tag}); }
-        tagsAsOneWord.erase(0, pos + delimeter.length());
+    for (const auto &tag: wordSplitter(tagsAsOneWord, delimeter)) {
+        data.insert({METADATA_TAG, tag});
     }
 }
 
