@@ -3,8 +3,8 @@
 This repo will contain programs that will help me to create and organise notes.
 
 Programs so far:
-* [readmeMaker](##Readme Maker)
-* [noteMaker](##Note maker)
+* [readmeMaker](## Readme Maker)
+* [noteMaker](## Note maker)
 
 ### Readme Maker
 
