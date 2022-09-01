@@ -19,7 +19,9 @@ This program will extract metadata from `.md` files given the path. The program 
 
 It is the list of tags with hyperlinks to another list sort of like a content list in a book. Tags list will be stored in `.metadata` in `tags.md`. This allows for quick access to notes by tags.
 Example readme structure:
+
 ---
+
 Some intro text.
 * [Tag](.metadata/tags.md#Tag)
 * [Tag2](.metadata/tags.md#Tag2)
