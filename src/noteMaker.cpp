@@ -5,7 +5,6 @@
 #include <fstream>
 #include <ctime>
 #include <getopt.h>
-#include <sstream>
 #include <vector>
 
 static const char *const TEST_PATH = "../testing/noteMakerTest";
@@ -21,25 +20,6 @@ static struct option long_options[] = {
         {NULL, 0,                   NULL, 0}
 };
 
-std::vector<std::string> splitStringOnDelimeter(std::string string, std::string delimeter) {
-    std::vector<std::string> words{string.size()};
-    size_t pos{0};
-    while ((pos = string.find(delimeter)) != std::string::npos) {
-        const auto word{string.substr(0, pos)};
-        words.push_back(word);
-        string.erase(0, pos + delimeter.length());
-    }
-    return words;
-}
-
-std::string generateFileName(std::string name) {
-
-}
-
-std::string formatTags(std::string tags) {
-    //return string looking like this [ space after TAG_ONE TAG_TWO space before ]
-}
-
 int main(int argc, char *argv[]) {
     std::time_t current = std::time(nullptr);
     int c;
@@ -53,7 +33,6 @@ int main(int argc, char *argv[]) {
             case 'n':
                 printf("option n with value '%s'\n", optarg);
                 name = optarg;
-                fileName = generateFileName(optarg);
                 break;
             case 't':
                 printf("option t with value '%s'\n", optarg);
