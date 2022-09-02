@@ -52,27 +52,24 @@ int main(int argc, char *argv[]) {
                             long_options, &option_index)) != -1) {
         switch (c) {
             case 'n':
-                printf("option n with value '%s'\n", optarg);
                 title = optarg;
                 break;
             case 't':
-                printf("option t with value '%s'\n", optarg);
                 tags = optarg;
                 break;
             case '?':
                 break;
             default:
-                printf("?? getopt returned character code 0%o ??\n", c);
+                std::cout << "?? getopt returned character code 0" << c << " ??\n";
         }
     }
     if (optind < argc) {
-        printf("non-option ARGV-elements: ");
+        std::cout << "non-option ARGV-elements: " << "\n";
         while (optind < argc) {
-            printf("%s ", argv[optind++]);
+            std::cout << "%s " << argv[optind++] << "\n";
         }
-        printf("\n");
     }
-    std::ofstream note{TEST_PATH + generateFileName(title)+".md"};
+    std::ofstream note{TEST_PATH + generateFileName(title) + ".md"};
     note << "---\n"
          << METADATA_TITLE << ": " << formatTitle(title) << "\n"
          << METADATA_TAG << ": [ " << formatTags(tags) << " ]\n"
