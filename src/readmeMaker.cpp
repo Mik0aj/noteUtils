@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
     std::ifstream intro(pathToFolder + PATH_TO_INTRO);
     std::ifstream outro(pathToFolder + PATH_TO_OUTRO);
     std::map<std::string, FileInfo> filesInfo{};
+    std::vector<std::string> subdirectories{};
 
     for (const auto &entry: std::filesystem::recursive_directory_iterator(pathToFolder)) {
         const auto pathEnding{entry.path().string()};
@@ -94,6 +95,8 @@ int main(int argc, char *argv[]) {
             if (!metadata.empty()) {
                 filesInfo.insert({pathEnding, metadata});
             }
+        } else if (entry.is_directory() && pathEnding.find(".git")==std::string::npos) {
+            subdirectories.push_back(pathEnding);
         }
     }
     for (std::string line; getline(intro, line);) {
@@ -116,6 +119,9 @@ int main(int argc, char *argv[]) {
     }
     for (std::string line; getline(outro, line);) {
         readme << line << '\n';
+    }
+    for (auto en: subdirectories) {
+        std::cout << en << '\n';
     }
     intro.close();
     outro.close();
